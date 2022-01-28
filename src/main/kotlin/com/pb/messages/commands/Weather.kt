@@ -1,0 +1,79 @@
+package com.pb.messages.commands
+
+import com.pb.database.DaoFacade
+import com.pb.http.data.HttpCallResult
+import com.pb.http.weather.WeatherService
+import com.pb.http.weather.data.CurrentWeather
+import com.pb.messages.data.Command
+import com.pb.messages.data.CommandExecutionException
+import com.pb.messages.data.ExecutionData
+import com.pb.messages.utils.withAuthor
+import dev.kord.core.behavior.channel.createEmbed
+import dev.kord.core.entity.Message
+import dev.kord.core.entity.User
+import mu.KotlinLogging
+import kotlin.math.round
+
+class Weather(
+    private val daoFacade: DaoFacade,
+    private val weatherService: WeatherService
+) : Command {
+    private val logger = KotlinLogging.logger {}
+
+    override val triggers = listOf("weather")
+    override val isAdminOnly = false
+    override val help = "!weather [location]?"
+
+    override suspend fun execute(message: Message, executionData: ExecutionData) = message.withAuthor(logger) { author ->
+        val location = getLocation(author, executionData)
+        val currentWeather = getWeather(location)
+
+        val fullLocation = "${currentWeather.name}, ${currentWeather.sys.country}"
+        val tempC = currentWeather.main.temp.round(1)
+        val tempF = toFahrenheit(tempC)
+        val weatherGeneral = currentWeather.weather.firstOrNull()?.main ?: "N/A"
+        val icon = currentWeather.weather.firstOrNull()?.toIcon() ?: ""
+        val weatherDescription = currentWeather.weather.firstOrNull()?.description ?: "N/A"
+        val windKph = (currentWeather.wind.speed * 3.6).round(1)
+        val humidity = currentWeather.main.humidity
+
+        message.channel.createEmbed {
+            title = "Weather in $fullLocation"
+            description = """
+                |$icon **$weatherGeneral** ($weatherDescription)
+                |**Temp:** $tempC °C
+                |**Wind:** $windKph km/h
+                |**Humidity:** $humidity%
+            """.trimMargin()
+            footer { text = "$tempC °C = $tempF °F" }
+        }
+    }
+
+    private suspend fun getLocation(user: User, executionData: ExecutionData): String {
+        val (args, guild) = executionData
+        return if (args.isNotEmpty()) {
+            args.joinToString(" ")
+        } else {
+            daoFacade.getUserOrNull(user.id.value, guild.id.value)?.location
+                ?: throw CommandExecutionException("User ${user.username} has no location set.")
+        }
+    }
+
+    private suspend fun getWeather(location: String): CurrentWeather {
+        return when (val result = weatherService.getCurrentWeather(location)) {
+            is HttpCallResult.Success -> result.value
+            is HttpCallResult.NotFound -> throw CommandExecutionException("Location '$location' was not recognized.")
+            is HttpCallResult.Error -> throw CommandExecutionException("Failed to retrieve weather information.")
+        }
+    }
+
+    private fun toFahrenheit(temp: Double): Double {
+        return ((9.toDouble() / 5) * temp + 32).round(1)
+    }
+
+    private fun Double.round(decimals: Int): Double {
+        var multiplier = 1.0
+        repeat(decimals) { multiplier *= 10 }
+        return round(this * multiplier) / multiplier
+    }
+}
