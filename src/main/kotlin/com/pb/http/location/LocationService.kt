@@ -24,7 +24,7 @@ class LocationService(private val token: String) {
             }
             when (response.status) {
                 HttpStatusCode.OK -> {
-                    val text = response.readText()
+                    val text = response.bodyAsText()
                     val locations = mapper.readValue<Array<Location>>(text).toList()
                     HttpCallResult.Success(locations)
                 }

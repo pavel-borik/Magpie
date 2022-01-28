@@ -25,7 +25,7 @@ class WeatherService(private val token: String) {
             }
             when (response.status) {
                 HttpStatusCode.OK -> {
-                    val text = response.readText()
+                    val text = response.bodyAsText()
                     val currentWeather = mapper.readValue<CurrentWeather>(text)
                     HttpCallResult.Success(currentWeather)
                 }

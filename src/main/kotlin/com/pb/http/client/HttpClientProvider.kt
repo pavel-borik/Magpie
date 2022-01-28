@@ -3,13 +3,13 @@ package com.pb.http.client
 import com.pb.registerShutdownHookWithLogger
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.features.json.*
+import io.ktor.client.plugins.contentnegotiation.*
 
 object HttpClientProvider {
     val client by lazy {
         HttpClient(CIO) {
             expectSuccess = false
-            install(JsonFeature)
+            install(ContentNegotiation)
         }
     }
 
