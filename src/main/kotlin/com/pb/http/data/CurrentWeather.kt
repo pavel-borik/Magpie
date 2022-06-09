@@ -1,4 +1,4 @@
-package com.pb.http.weather.data
+package com.pb.http.data
 
 data class CurrentWeather(
     val weather: List<Weather>,

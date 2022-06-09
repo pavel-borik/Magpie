@@ -1,6 +1,6 @@
 package com.pb.messages.commands
 
-import com.pb.http.weather.data.CurrentWeather
+import com.pb.http.data.CurrentWeather
 import com.pb.messages.data.Command
 import dev.kord.core.behavior.channel.createEmbed
 import dev.kord.core.entity.Message

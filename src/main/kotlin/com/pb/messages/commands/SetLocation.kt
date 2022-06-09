@@ -1,9 +1,9 @@
 package com.pb.messages.commands
 
 import com.pb.database.DaoFacade
-import com.pb.http.data.HttpCallResult
-import com.pb.http.location.LocationService
-import com.pb.http.location.data.Location
+import com.pb.http.data.ApiOperationResult
+import com.pb.http.data.Location
+import com.pb.http.service.LocationService
 import com.pb.messages.data.Command
 import com.pb.messages.data.CommandExecutionException
 import com.pb.messages.data.ExecutionData
@@ -46,10 +46,10 @@ class SetLocation(
 
     private suspend fun getLocation(location: String): Location {
         return when (val result = locationService.getLocationData(location)) {
-            is HttpCallResult.Success -> result.value.firstOrNull()
+            is ApiOperationResult.Success -> result.value.firstOrNull()
                 ?: throw CommandExecutionException("Location '$location' was not recognized.")
-            is HttpCallResult.NotFound -> throw CommandExecutionException("Location '$location' was not recognized.")
-            is HttpCallResult.Error -> throw CommandExecutionException("Failed to retrieve location information.")
+            is ApiOperationResult.NotFound -> throw CommandExecutionException("Location '$location' was not recognized.")
+            is ApiOperationResult.Error -> throw CommandExecutionException("Failed to retrieve location information.")
         }
     }
 }

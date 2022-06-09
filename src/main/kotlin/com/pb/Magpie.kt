@@ -2,8 +2,8 @@ package com.pb
 
 import com.pb.config.ConfigurationProvider
 import com.pb.database.DaoFacade
-import com.pb.http.location.LocationService
-import com.pb.http.weather.WeatherService
+import com.pb.http.service.LocationService
+import com.pb.http.service.WeatherService
 import com.pb.messages.MessageEntityProvider
 import com.pb.messages.MessageHandler
 import com.pb.messages.commands.*

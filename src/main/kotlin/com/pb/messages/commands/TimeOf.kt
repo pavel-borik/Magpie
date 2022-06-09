@@ -1,9 +1,9 @@
 package com.pb.messages.commands
 
 import com.pb.database.DaoFacade
-import com.pb.http.data.HttpCallResult
-import com.pb.http.weather.WeatherService
-import com.pb.http.weather.data.CurrentWeather
+import com.pb.http.data.ApiOperationResult
+import com.pb.http.data.CurrentWeather
+import com.pb.http.service.WeatherService
 import com.pb.messages.data.CommandExecutionException
 import com.pb.messages.data.ExecutionData
 import com.pb.messages.data.InvalidCommandUsageException
@@ -43,9 +43,9 @@ class TimeOf(
 
     private suspend fun getWeather(location: String): CurrentWeather {
         return when (val result = weatherService.getCurrentWeather(location)) {
-            is HttpCallResult.Success -> result.value
-            is HttpCallResult.NotFound -> throw CommandExecutionException("Location '$location' was not recognized.")
-            is HttpCallResult.Error -> throw CommandExecutionException("Failed to retrieve time information.")
+            is ApiOperationResult.Success -> result.value
+            is ApiOperationResult.NotFound -> throw CommandExecutionException("Location '$location' was not recognized.")
+            is ApiOperationResult.Error -> throw CommandExecutionException("Failed to retrieve time information.")
         }
     }
 }
