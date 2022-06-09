@@ -73,8 +73,8 @@ class Weather(
         }
     }
 
-    private fun toFahrenheit(temp: Double): Double {
-        return ((9.toDouble() / 5) * temp + 32).round(1)
+    private fun toFahrenheit(temp: Double): Int {
+        return round(((9.toDouble() / 5) * temp + 32)).toInt()
     }
 
     private fun Double.round(decimals: Int): Double {
