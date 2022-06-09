@@ -9,17 +9,18 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import mu.KotlinLogging
+import java.time.Duration
 
-class LocationService(private val token: String) {
+class LocationService(private val token: String) : CacheableService<String, List<Location>>(Duration.ofMinutes(30)) {
     private val logger = KotlinLogging.logger {}
     private val baseUrl = "http://api.openweathermap.org/geo/1.0/direct"
     private val client = HttpClientProvider.client
     private val mapper = ObjectMapperProvider.mapper
 
-    suspend fun getLocationData(location: String): ApiOperationResult<List<Location>> {
+    override suspend fun compute(key: String): ApiOperationResult<List<Location>> {
         return try {
-            val response: HttpResponse = client.get(baseUrl) {
-                parameter("q", location)
+            val response = client.get(baseUrl) {
+                parameter("q", key)
                 parameter("appid", token)
             }
             when (response.status) {
@@ -41,5 +42,11 @@ class LocationService(private val token: String) {
             logger.error(e) { "Failed to retrieve data: ${e.message}" }
             ApiOperationResult.Error
         }
+    }
+
+    suspend fun getLocationData(location: String): ApiOperationResult<List<Location>> {
+        val locationLowercase = location.lowercase()
+        logger.debug { "Getting location data for '$locationLowercase'" }
+        return getOrCompute(locationLowercase)
     }
 }

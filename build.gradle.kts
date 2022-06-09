@@ -23,6 +23,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-core:0.38.2")
     implementation("org.jetbrains.exposed:exposed-dao:0.38.2")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.38.2")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.1")
     implementation("io.ktor:ktor-client-core:2.0.2")
     implementation("io.ktor:ktor-client-cio:2.0.2")
     implementation("io.ktor:ktor-client-jackson:2.0.2")

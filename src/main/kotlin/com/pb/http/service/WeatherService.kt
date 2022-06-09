@@ -9,17 +9,18 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import mu.KotlinLogging
+import java.time.Duration
 
-class WeatherService(private val token: String) {
+class WeatherService(private val token: String) : CacheableService<String, CurrentWeather>(Duration.ofMinutes(5)) {
     private val logger = KotlinLogging.logger {}
     private val baseUrl = "http://api.openweathermap.org/data/2.5/weather"
     private val client = HttpClientProvider.client
     private val mapper = ObjectMapperProvider.mapper
 
-    suspend fun getCurrentWeather(location: String): ApiOperationResult<CurrentWeather> {
+    override suspend fun compute(key: String): ApiOperationResult<CurrentWeather> {
         return try {
-            val response: HttpResponse = client.get(baseUrl) {
-                parameter("q", location)
+            val response = client.get(baseUrl) {
+                parameter("q", key)
                 parameter("units", "metric")
                 parameter("appid", token)
             }
@@ -42,5 +43,11 @@ class WeatherService(private val token: String) {
             logger.error(e) { "Failed to retrieve data: ${e.message}" }
             ApiOperationResult.Error
         }
+    }
+
+    suspend fun getCurrentWeather(location: String): ApiOperationResult<CurrentWeather> {
+        val locationLowercase = location.lowercase()
+        logger.debug { "Getting current weather data for '$locationLowercase'" }
+        return getOrCompute(locationLowercase)
     }
 }
