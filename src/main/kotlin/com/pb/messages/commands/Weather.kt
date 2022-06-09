@@ -12,6 +12,10 @@ import dev.kord.core.behavior.channel.createEmbed
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
 import mu.KotlinLogging
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.util.*
 import kotlin.math.round
 
 class Weather(
@@ -19,6 +23,7 @@ class Weather(
     private val weatherService: WeatherService
 ) : Command {
     private val logger = KotlinLogging.logger {}
+    private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm", Locale.US)
 
     override val triggers = listOf("weather")
     override val isAdminOnly = false
@@ -36,16 +41,17 @@ class Weather(
         val weatherDescription = currentWeather.weather.firstOrNull()?.description ?: "N/A"
         val windKph = (currentWeather.wind.speed * 3.6).round(1)
         val humidity = currentWeather.main.humidity
+        val time = LocalDateTime.now(ZoneOffset.UTC).plusSeconds(currentWeather.timezone)
 
         message.channel.createEmbed {
             title = "Weather in $fullLocation"
             description = """
                 |$icon **$weatherGeneral** ($weatherDescription)
-                |**Temp:** $tempC °C
+                |**Temp:** $tempC °C | $tempF °F
                 |**Wind:** $windKph km/h
                 |**Humidity:** $humidity%
             """.trimMargin()
-            footer { text = "$tempC °C = $tempF °F" }
+            footer { text = "Local time: ${timeFormatter.format(time)}" }
         }
     }
 
