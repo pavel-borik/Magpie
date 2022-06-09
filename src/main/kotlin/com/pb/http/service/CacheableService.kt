@@ -14,7 +14,7 @@ abstract class CacheableService<K, V>(
 
     private val cache: Cache<K, V> = Caffeine.newBuilder()
         .scheduler(Scheduler.systemScheduler())
-        .maximumSize(10000)
+        .maximumSize(100)
         .evictionListener<K, V> { key, _, cause -> logger.debug { "Evicted entry for '$key' - $cause" } }
         .expireAfterWrite(expiration)
         .build()
