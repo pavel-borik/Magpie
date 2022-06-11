@@ -8,12 +8,17 @@ import com.pb.messages.MessageEntityProvider
 import com.pb.messages.MessageHandler
 import com.pb.messages.commands.*
 import com.pb.messages.filters.Lillie
+import com.pb.scheduling.ScheduledActionService
 import com.zaxxer.hikari.HikariDataSource
 import dev.kord.core.Kord
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
 import dev.kord.gateway.Intents
 import dev.kord.gateway.PrivilegedIntent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import mu.KLogger
 import mu.KotlinLogging
 import org.h2.Driver
@@ -39,21 +44,26 @@ private val logger = KotlinLogging.logger {}
 
 @PrivilegedIntent
 suspend fun main() {
-    registerShutdownHookWithLogger() {
+    val scheduleScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    registerShutdownHookWithLogger {
         shutdownDataSource()
+        scheduleScope.cancel("Application shutdown")
     }
     val configuration = ConfigurationProvider.getConfiguration(configLocation)
     logger.info { "Loaded configuration file from ${configLocation.canonicalFile.absolutePath}" }
     logger.info { "Loaded database file from ${dbLocation.canonicalFile.absolutePath}" }
 
-    val client = Kord(configuration.token)
     val dao = DaoFacade(Database.connect(ds))
 
     val messageEntityProvider = MessageEntityProvider()
     val weatherService = WeatherService(configuration.weatherApiToken)
+    val scheduledActionService = ScheduledActionService(scheduleScope)
+
     messageEntityProvider.registerCommands(
         Avatar(),
         Location(dao),
+        RemindMe(scheduledActionService),
+        UnRemindMe(scheduledActionService),
         SetLocation(dao, LocationService(configuration.weatherApiToken)),
         RemoveLocation(dao),
         Weather(dao, weatherService),
@@ -64,6 +74,8 @@ suspend fun main() {
     messageEntityProvider.registerFilters(Lillie())
 
     val messageHandler = MessageHandler(configuration, messageEntityProvider)
+
+    val client = Kord(configuration.token)
 
     client.on<MessageCreateEvent> {
         messageHandler.handle(message)
