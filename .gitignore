@@ -3,3 +3,4 @@ configuration.json
 .gradle
 build
 *.log
+logs
