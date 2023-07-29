@@ -1,14 +1,14 @@
 package com.pb
 
 import com.pb.config.ConfigurationProvider
+import com.pb.core.CommandProvider
+import com.pb.core.CommandRegistrationService
+import com.pb.core.FilterProvider
+import com.pb.core.FilterRegistrationService
+import com.pb.core.events.InteractionEventHandler
+import com.pb.core.events.MessageEventHandler
 import com.pb.database.DaoFacade
 import com.pb.http.service.WeatherService
-import com.pb.messages.CommandProvider
-import com.pb.messages.CommandRegistrationService
-import com.pb.messages.FilterProvider
-import com.pb.messages.FilterRegistrationService
-import com.pb.messages.events.InteractionEventHandler
-import com.pb.messages.events.MessageEventHandler
 import com.pb.scheduling.ScheduledActionService
 import com.zaxxer.hikari.HikariDataSource
 import dev.kord.core.Kord

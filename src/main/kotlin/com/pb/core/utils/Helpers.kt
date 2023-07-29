@@ -1,6 +1,6 @@
-package com.pb.messages.utils
+package com.pb.core.utils
 
-import com.pb.messages.data.CommandExecutionException
+import com.pb.core.data.CommandExecutionException
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.entity.Guild
 import dev.kord.core.entity.Message

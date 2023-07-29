@@ -1,8 +1,8 @@
-package com.pb.messages
+package com.pb.core
 
-import com.pb.messages.data.ChatCommand
-import com.pb.messages.data.Command
-import com.pb.messages.data.SlashCommand
+import com.pb.core.data.ChatCommand
+import com.pb.core.data.Command
+import com.pb.core.data.SlashCommand
 import dev.kord.core.Kord
 import kotlinx.coroutines.flow.toList
 import mu.KotlinLogging

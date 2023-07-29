@@ -1,9 +1,9 @@
-package com.pb.messages.events
+package com.pb.core.events
 
 import com.pb.config.Configuration
-import com.pb.messages.CommandRegistrationService
-import com.pb.messages.data.CommandExecutionException
-import com.pb.messages.data.SlashCommand
+import com.pb.core.CommandRegistrationService
+import com.pb.core.data.CommandExecutionException
+import com.pb.core.data.SlashCommand
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.behavior.interaction.response.DeferredPublicMessageInteractionResponseBehavior
 import dev.kord.core.behavior.interaction.response.respond

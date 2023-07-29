@@ -1,13 +1,13 @@
-package com.pb.messages.events
+package com.pb.core.events
 
 import com.pb.PREFIX
 import com.pb.config.Configuration
-import com.pb.messages.CommandRegistrationService
-import com.pb.messages.FilterRegistrationService
-import com.pb.messages.data.ChatCommand
-import com.pb.messages.data.CommandExecutionException
-import com.pb.messages.data.ExecutionData
-import com.pb.messages.data.InvalidCommandUsageException
+import com.pb.core.CommandRegistrationService
+import com.pb.core.FilterRegistrationService
+import com.pb.core.data.ChatCommand
+import com.pb.core.data.CommandExecutionException
+import com.pb.core.data.ExecutionData
+import com.pb.core.data.InvalidCommandUsageException
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.behavior.channel.MessageChannelBehavior
 import dev.kord.core.entity.Guild

@@ -1,6 +1,6 @@
-package com.pb.messages.filters
+package com.pb.core.filters
 
-import com.pb.messages.data.Filter
+import com.pb.core.data.Filter
 import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.entity.Message
 

@@ -1,7 +1,7 @@
-package com.pb.messages
+package com.pb.core
 
-import com.pb.messages.data.Filter
-import com.pb.messages.filters.Lillie
+import com.pb.core.data.Filter
+import com.pb.core.filters.Lillie
 
 class FilterProvider {
 

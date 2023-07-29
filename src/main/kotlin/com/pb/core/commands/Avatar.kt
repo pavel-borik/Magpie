@@ -1,10 +1,10 @@
-package com.pb.messages.commands
+package com.pb.core.commands
 
-import com.pb.messages.data.ChatCommand
-import com.pb.messages.data.ExecutionData
-import com.pb.messages.data.InvalidCommandUsageException
-import com.pb.messages.data.SlashCommand
-import com.pb.messages.utils.getUserFromText
+import com.pb.core.data.ChatCommand
+import com.pb.core.data.ExecutionData
+import com.pb.core.data.InvalidCommandUsageException
+import com.pb.core.data.SlashCommand
+import com.pb.core.utils.getUserFromText
 import dev.kord.core.behavior.interaction.response.DeferredPublicMessageInteractionResponseBehavior
 import dev.kord.core.behavior.interaction.response.respond
 import dev.kord.core.entity.Message

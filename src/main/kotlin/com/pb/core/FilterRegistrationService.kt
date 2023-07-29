@@ -1,6 +1,6 @@
-package com.pb.messages
+package com.pb.core
 
-import com.pb.messages.data.Filter
+import com.pb.core.data.Filter
 
 class FilterRegistrationService {
     private val filters = mutableListOf<Filter>()

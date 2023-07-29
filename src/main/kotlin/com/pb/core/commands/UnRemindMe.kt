@@ -1,9 +1,9 @@
-package com.pb.messages.commands
+package com.pb.core.commands
 
-import com.pb.messages.data.ChatCommand
-import com.pb.messages.data.ExecutionData
-import com.pb.messages.data.SlashCommand
-import com.pb.messages.utils.withAuthor
+import com.pb.core.data.ChatCommand
+import com.pb.core.data.ExecutionData
+import com.pb.core.data.SlashCommand
+import com.pb.core.utils.withAuthor
 import com.pb.scheduling.ScheduledActionService
 import dev.kord.core.behavior.interaction.response.DeferredPublicMessageInteractionResponseBehavior
 import dev.kord.core.behavior.interaction.response.respond

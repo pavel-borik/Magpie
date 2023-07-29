@@ -1,9 +1,9 @@
-package com.pb.messages.commands
+package com.pb.core.commands
 
-import com.pb.messages.CommandRegistrationService
-import com.pb.messages.data.ChatCommand
-import com.pb.messages.data.ExecutionData
-import com.pb.messages.data.SlashCommand
+import com.pb.core.CommandRegistrationService
+import com.pb.core.data.ChatCommand
+import com.pb.core.data.ExecutionData
+import com.pb.core.data.SlashCommand
 import dev.kord.core.behavior.channel.createEmbed
 import dev.kord.core.behavior.interaction.response.DeferredPublicMessageInteractionResponseBehavior
 import dev.kord.core.behavior.interaction.response.respond

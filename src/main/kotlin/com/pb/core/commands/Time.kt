@@ -1,43 +1,43 @@
-package com.pb.messages.commands
+package com.pb.core.commands
 
+import com.pb.core.data.CommandExecutionException
+import com.pb.core.data.ExecutionData
+import com.pb.core.utils.withAuthor
 import com.pb.database.DaoFacade
 import com.pb.http.data.ApiOperationResult
 import com.pb.http.data.CurrentWeather
 import com.pb.http.service.WeatherService
-import com.pb.messages.data.CommandExecutionException
-import com.pb.messages.data.ExecutionData
-import com.pb.messages.data.InvalidCommandUsageException
-import com.pb.messages.utils.getUserFromText
 import dev.kord.core.behavior.interaction.response.DeferredPublicMessageInteractionResponseBehavior
 import dev.kord.core.entity.Guild
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
 import dev.kord.core.entity.interaction.GuildChatInputCommandInteraction
 import dev.kord.rest.builder.interaction.GlobalChatInputCreateBuilder
-import dev.kord.rest.builder.interaction.user
+import dev.kord.rest.builder.interaction.string
+import mu.KotlinLogging
 
-class TimeOf(
+class Time(
     private val daoFacade: DaoFacade,
     private val weatherService: WeatherService
 ) : AbstractTimeCommand() {
-    override val trigger = "timeof"
+    private val logger = KotlinLogging.logger {}
+
+    override val trigger = "time"
     override val isAdminOnly = false
-    override val help = "!timeof [mention|username]"
-    override val description = "Show a user's time information"
+    override val help = "!time [location]?"
+    override val description = "Display the time"
 
-    private val USER_ARG = "user"
+    private val LOCATION_ARG = "location"
 
-    override suspend fun execute(message: Message, executionData: ExecutionData) {
-        val user = getUserFromMessage(executionData)
-        val location = getLocation(user, executionData)
+    override suspend fun execute(message: Message, executionData: ExecutionData) = message.withAuthor(logger) { author ->
+        val location = getLocation(author, executionData)
         val currentWeather = getWeather(location)
 
         createTimeMessage(message, currentWeather)
     }
 
     override suspend fun execute(interaction: GuildChatInputCommandInteraction, response: DeferredPublicMessageInteractionResponseBehavior) {
-        val user = interaction.command.users[USER_ARG]!!
-        val location = getUserLocation(user, interaction.guild.asGuild())
+        val location = interaction.command.strings[LOCATION_ARG] ?: getUserLocation(interaction.user.asUser(), interaction.guild.asGuild())
         val currentWeather = getWeather(location)
 
         createTimeMessage(response, currentWeather)
@@ -45,22 +45,19 @@ class TimeOf(
 
     override fun buildInputCommand(builder: GlobalChatInputCreateBuilder) {
         with(builder) {
-            user(USER_ARG, "User") {
-                required = true
+            string(LOCATION_ARG, "Location") {
+                required = false
             }
         }
     }
 
-    private suspend fun getUserFromMessage(executionData: ExecutionData): User {
-        val (args, guild) = executionData
-        return when (args.size) {
-            1 -> getUserFromText(args[0], guild)
-            else -> throw InvalidCommandUsageException("Invalid number of arguments.", help)
-        }
-    }
-
     private suspend fun getLocation(user: User, executionData: ExecutionData): String {
-        return getUserLocation(user, executionData.guild)
+        val (args, guild) = executionData
+        return if (args.isNotEmpty()) {
+            args.joinToString(" ")
+        } else {
+            getUserLocation(user, guild)
+        }
     }
 
     private suspend fun getUserLocation(user: User, guild: Guild): String {

@@ -1,4 +1,4 @@
-package com.pb.messages.data
+package com.pb.core.data
 
 import dev.kord.core.behavior.interaction.response.DeferredPublicMessageInteractionResponseBehavior
 import dev.kord.core.entity.Guild
