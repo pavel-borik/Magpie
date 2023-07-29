@@ -2,15 +2,17 @@ package com.pb
 
 import com.pb.config.ConfigurationProvider
 import com.pb.database.DaoFacade
-import com.pb.http.service.LocationService
 import com.pb.http.service.WeatherService
-import com.pb.messages.MessageEntityProvider
-import com.pb.messages.MessageHandler
-import com.pb.messages.commands.*
-import com.pb.messages.filters.Lillie
+import com.pb.messages.CommandProvider
+import com.pb.messages.CommandRegistrationService
+import com.pb.messages.FilterProvider
+import com.pb.messages.FilterRegistrationService
+import com.pb.messages.events.InteractionEventHandler
+import com.pb.messages.events.MessageEventHandler
 import com.pb.scheduling.ScheduledActionService
 import com.zaxxer.hikari.HikariDataSource
 import dev.kord.core.Kord
+import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
 import dev.kord.gateway.Intents
@@ -53,32 +55,28 @@ suspend fun main() {
     logger.info { "Loaded configuration file from ${configLocation.canonicalFile.absolutePath}" }
     logger.info { "Loaded database file from ${dbLocation.canonicalFile.absolutePath}" }
 
+    val client = Kord(configuration.token)
     val dao = DaoFacade(Database.connect(ds))
 
-    val messageEntityProvider = MessageEntityProvider()
+    val commandRegistrationService = CommandRegistrationService(client)
+    val filterRegistrationService = FilterRegistrationService()
     val weatherService = WeatherService(configuration.weatherApiToken)
     val scheduledActionService = ScheduledActionService(scheduleScope)
+    val commandProvider = CommandProvider(dao, scheduledActionService, configuration, weatherService, commandRegistrationService)
+    val filterProvider = FilterProvider()
 
-    messageEntityProvider.registerCommands(
-        Avatar(),
-        Location(dao),
-        RemindMe(scheduledActionService),
-        UnRemindMe(scheduledActionService),
-        SetLocation(dao, LocationService(configuration.weatherApiToken)),
-        RemoveLocation(dao),
-        Weather(dao, weatherService),
-        Time(dao, weatherService),
-        TimeOf(dao, weatherService),
-        Help(messageEntityProvider),
-    )
-    messageEntityProvider.registerFilters(Lillie())
+    commandRegistrationService.registerCommands(*commandProvider.getCommands().toTypedArray())
+    filterRegistrationService.registerFilters(*filterProvider.getFilters().toTypedArray())
 
-    val messageHandler = MessageHandler(configuration, messageEntityProvider)
-
-    val client = Kord(configuration.token)
+    val interactionEventHandler = InteractionEventHandler(configuration, commandRegistrationService)
+    val messageEventHandler = MessageEventHandler(configuration, commandRegistrationService, filterRegistrationService)
 
     client.on<MessageCreateEvent> {
-        messageHandler.handle(message)
+        messageEventHandler.handleMessageCreateEvent(message)
+    }
+
+    client.on<GuildChatInputCommandInteractionCreateEvent> {
+        interactionEventHandler.handleGuildChatInputCommandInteractionCreateEvent(interaction)
     }
 
     client.login { intents = Intents.all }

@@ -1,8 +1,10 @@
-package com.pb.messages
+package com.pb.messages.events
 
 import com.pb.PREFIX
 import com.pb.config.Configuration
-import com.pb.messages.data.Command
+import com.pb.messages.CommandRegistrationService
+import com.pb.messages.FilterRegistrationService
+import com.pb.messages.data.ChatCommand
 import com.pb.messages.data.CommandExecutionException
 import com.pb.messages.data.ExecutionData
 import com.pb.messages.data.InvalidCommandUsageException
@@ -12,19 +14,21 @@ import dev.kord.core.entity.Guild
 import dev.kord.core.entity.Message
 import mu.KotlinLogging
 
-class MessageHandler(
+class MessageEventHandler(
     private val configuration: Configuration,
-    private val messageEntityProvider: MessageEntityProvider,
+    private val commandRegistrationService: CommandRegistrationService,
+    filterRegistrationService: FilterRegistrationService,
 ) {
     private val logger = KotlinLogging.logger {}
 
     private val admins = configuration.admins.map { Snowflake(it) }
+    private val filters = filterRegistrationService.getFilters()
 
-    suspend fun handle(message: Message) = handleErrors(message.channel) {
+    suspend fun handleMessageCreateEvent(message: Message) = handleErrors(message.channel) {
         if (message.isFromBot() || message.isFromDisabledGuild()) return@handleErrors
         if (message.isCommandInvocation()) {
             message.getGuildOrNull()
-                ?.let { guild -> runCommandWhenFound(message, guild) }
+                ?.let { guild -> runChatCommand(message, guild) }
                 ?: logger.warn { "Command message '${message.content}' has been run outside of valid guild" }
             return@handleErrors
         }
@@ -43,23 +47,29 @@ class MessageHandler(
         }
     }
 
-    private suspend fun runCommandWhenFound(message: Message, guild: Guild) {
+    private suspend fun runChatCommand(message: Message, guild: Guild) {
         val commandTrigger = message.content.substringBefore(" ").removePrefix(PREFIX).lowercase()
 
-        messageEntityProvider.commands[commandTrigger]
-            ?.let { command ->
-                val args = message.content.split(" ").drop(1)
-                val commandExecutionData = ExecutionData(args, guild)
-                if (command.isAdminOnly) {
-                    executeAdminOnly(message, command, commandExecutionData)
-                } else {
-                    command.execute(message, commandExecutionData)
-                }
-            }
-            ?: message.channel.createMessage("Command '$commandTrigger' was not found.")
+        val command = commandRegistrationService.getChatCommandOrNull(commandTrigger)
+        if (command != null) {
+            doRunChatCommand(message, guild, command)
+            return
+        }
+
+        message.channel.createMessage("Command '$commandTrigger' was not found.")
     }
 
-    private suspend fun executeAdminOnly(message: Message, command: Command, commandExecutionData: ExecutionData) {
+    private suspend fun doRunChatCommand(message: Message, guild: Guild, command: ChatCommand) {
+        val args = message.content.split(" ").drop(1)
+        val commandExecutionData = ExecutionData(args, guild)
+        if (command.isAdminOnly) {
+            executeAdminOnly(message, command, commandExecutionData)
+        } else {
+            command.execute(message, commandExecutionData)
+        }
+    }
+
+    private suspend fun executeAdminOnly(message: Message, command: ChatCommand, commandExecutionData: ExecutionData) {
         if (message.author != null && admins.contains(message.author!!.id)) {
             command.execute(message, commandExecutionData)
         } else {
@@ -67,16 +77,11 @@ class MessageHandler(
         }
     }
 
-    private suspend fun doFilter(message: Message) {
-        messageEntityProvider.filters.forEach { it.doFilter(message) }
-    }
-
     private fun Message.isCommandInvocation() = content.startsWith(PREFIX)
 
     private fun Message.isFromBot() = author?.isBot ?: false
 
-    private suspend fun Message.isFromDisabledGuild() =
-        getGuildOrNull() != null && configuration.disabledServers.contains(getGuild().id.value)
+    private suspend fun Message.isFromDisabledGuild() = getGuildOrNull()?.let { it.id.value in configuration.disabledServers } ?: false
+
+    private suspend fun doFilter(message: Message) = filters.forEach { it.doFilter(message) }
 }
-
-

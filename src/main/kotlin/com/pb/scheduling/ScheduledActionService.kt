@@ -3,7 +3,11 @@ package com.pb.scheduling
 import com.pb.scheduling.data.ScheduleRequest
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.entity.User
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import mu.KotlinLogging
@@ -34,6 +38,7 @@ class ScheduledActionService(private val scope: CoroutineScope) {
     }
 
     suspend fun cancelRequest(user: User) = mutex.withLock {
+        logger.info { "Cancelling reminder for user ${user.username}" }
         val job = jobs.remove(user.id)
         return@withLock if (job != null) {
             job.cancelAndJoin()
