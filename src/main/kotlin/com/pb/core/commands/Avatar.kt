@@ -45,7 +45,7 @@ class Avatar : ChatCommand, SlashCommand {
     }
 
     private fun getMessageContent(user: User): String {
-        return user.avatar?.url ?: getAvatarNotAvailableMessage(user)
+        return user.avatar?.cdnUrl?.toUrl() ?: getAvatarNotAvailableMessage(user)
     }
 
     private suspend fun getUserFromMessage(message: Message, executionData: ExecutionData): User? {
