@@ -27,5 +27,8 @@ data class ExecutionData(
     val guild: Guild,
 )
 
-class InvalidCommandUsageException(val reason: String, val help: String) : RuntimeException()
-class CommandExecutionException(val reason: String) : RuntimeException(reason)
+sealed class CommandException : RuntimeException()
+class CommandNotFoundException(val trigger: String): CommandException()
+class InvalidCommandUsageException(val reason: String, val help: String) : CommandException()
+class CommandExecutionException(val reason: String) : CommandException()
+class CommandExecutedByNonAdminException : CommandException()

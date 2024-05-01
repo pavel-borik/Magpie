@@ -82,7 +82,7 @@ class SetLocation(
 
     private suspend fun getMessageContent(user: User, guildId: Snowflake): String {
         return dao.getUserOrNull(user.id.value, guildId.value)
-            ?.let { "User ${user.username} has set the location to '${it.location}'." }
+            ?.let { "Location of user ${user.username} has been set." }
             ?: throw CommandExecutionException("Could not find user ${user.username} in the database.")
     }
 }

@@ -5,4 +5,5 @@ data class Configuration(
     val weatherApiToken: String,
     val admins: List<ULong>,
     val disabledServers: List<ULong>,
+    val verboseErrorHandling: Boolean,
 )
