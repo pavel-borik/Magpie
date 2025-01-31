@@ -11,7 +11,7 @@ import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
 import dev.kord.core.entity.interaction.GuildChatInputCommandInteraction
 import dev.kord.rest.builder.interaction.GlobalChatInputCreateBuilder
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 class RemoveLocation(private val dao: DaoFacade) : ChatCommand, SlashCommand {
     private val logger = KotlinLogging.logger {}

@@ -17,7 +17,7 @@ import dev.kord.core.entity.interaction.GuildChatInputCommandInteraction
 import dev.kord.rest.builder.interaction.GlobalChatInputCreateBuilder
 import dev.kord.rest.builder.interaction.integer
 import dev.kord.rest.builder.interaction.string
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 class RemindMe(
     private val scheduledActionService: ScheduledActionService,

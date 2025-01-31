@@ -4,8 +4,8 @@ import com.pb.core.data.ChatCommand
 import com.pb.core.data.Command
 import com.pb.core.data.SlashCommand
 import dev.kord.core.Kord
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.flow.toList
-import mu.KotlinLogging
 
 class CommandRegistrationService(private val client: Kord) {
     private val logger = KotlinLogging.logger {}

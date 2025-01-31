@@ -3,10 +3,14 @@ package com.pb.database
 import com.pb.database.entities.UserEntity
 import com.pb.database.entities.Users
 import kotlinx.coroutines.Dispatchers
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils.createMissingTablesAndColumns
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 
 class DaoFacade(private val db: Database) {
     init {
@@ -17,7 +21,7 @@ class DaoFacade(private val db: Database) {
 
     suspend fun getUserOrNull(discordId: ULong, guildId: ULong): UserEntity? {
         return newSuspendedTransaction(Dispatchers.IO, db) {
-            Users.select { Users.discordId.eq(discordId) and Users.guildId.eq(guildId) }
+            Users.selectAll().where { Users.discordId.eq(discordId) and Users.guildId.eq(guildId) }
                 .map { UserEntity(it[Users.discordId], it[Users.guildId], it[Users.location]) }
                 .singleOrNull()
         }
@@ -25,7 +29,7 @@ class DaoFacade(private val db: Database) {
 
     suspend fun setLocation(discordId: ULong, guildId: ULong, location: String) {
         newSuspendedTransaction(Dispatchers.IO, db) {
-            val user = Users.select { Users.discordId.eq(discordId) and Users.guildId.eq(guildId) }
+            val user = Users.selectAll().where { Users.discordId.eq(discordId) and Users.guildId.eq(guildId) }
                 .map { UserEntity(it[Users.discordId], it[Users.guildId], it[Users.location]) }
                 .singleOrNull()
 
@@ -45,8 +49,8 @@ class DaoFacade(private val db: Database) {
 
     suspend fun removeLocation(discordId: ULong, guildId: ULong) {
         newSuspendedTransaction(Dispatchers.IO, db) {
-            val location = Users.slice(Users.location)
-                .select { Users.discordId.eq(discordId) and Users.guildId.eq(guildId) }
+            val location = Users.select(Users.location)
+                .where { Users.discordId.eq(discordId) and Users.guildId.eq(guildId) }
                 .map { it[Users.location] }
                 .singleOrNull()
 

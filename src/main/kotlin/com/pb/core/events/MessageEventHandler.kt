@@ -15,7 +15,7 @@ import dev.kord.common.entity.Snowflake
 import dev.kord.core.behavior.channel.MessageChannelBehavior
 import dev.kord.core.entity.Guild
 import dev.kord.core.entity.Message
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 class MessageEventHandler(
     private val configuration: Configuration,

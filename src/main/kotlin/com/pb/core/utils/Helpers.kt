@@ -5,8 +5,8 @@ import dev.kord.common.entity.Snowflake
 import dev.kord.core.entity.Guild
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
+import io.github.oshai.kotlinlogging.KLogger
 import kotlinx.coroutines.flow.firstOrNull
-import mu.KLogger
 
 val regex = Regex("^<@!?(\\d+)>\$")
 

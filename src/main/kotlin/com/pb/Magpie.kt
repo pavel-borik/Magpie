@@ -15,14 +15,15 @@ import dev.kord.core.Kord
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
+import dev.kord.gateway.ALL
 import dev.kord.gateway.Intents
 import dev.kord.gateway.PrivilegedIntent
+import io.github.oshai.kotlinlogging.KLogger
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import mu.KLogger
-import mu.KotlinLogging
 import org.h2.Driver
 import org.jetbrains.exposed.sql.Database
 import java.io.File
@@ -79,7 +80,7 @@ suspend fun main() {
         interactionEventHandler.handleGuildChatInputCommandInteractionCreateEvent(interaction)
     }
 
-    client.login { intents = Intents.all }
+    client.login { intents = Intents.ALL }
 }
 
 private fun shutdownDataSource() {

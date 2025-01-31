@@ -8,7 +8,7 @@ import dev.kord.common.entity.Snowflake
 import dev.kord.core.behavior.interaction.response.DeferredPublicMessageInteractionResponseBehavior
 import dev.kord.core.behavior.interaction.response.respond
 import dev.kord.core.entity.interaction.GuildChatInputCommandInteraction
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 class InteractionEventHandler(
     private val configuration: Configuration,

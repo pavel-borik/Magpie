@@ -5,10 +5,10 @@ import com.pb.http.data.ApiOperationResult
 import com.pb.http.data.Location
 import com.pb.serialization.ObjectMapperProvider
 import com.pb.serialization.readValue
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import mu.KotlinLogging
 import java.time.Duration
 
 class LocationService(private val token: String) : CacheableService<String, List<Location>>(Duration.ofMinutes(30)) {
